@@ -1,8 +1,14 @@
 # MoltBot - Átfogó Biztonsági és Működési Audit Jelentés
 
+> **🔍 FORK AUDIT NOTICE**
+> This security audit was performed on a **fork** of the original [Moltbot project](https://github.com/moltbot/moltbot).
+> The P0 recommendations have been implemented in this fork. See [FORK.md](FORK.md) for details.
+> **Original project:** https://github.com/moltbot/moltbot
+
 **Verzió:** 2026.1.27-beta.1
 **Audit Dátum:** 2026-01-29
 **Auditor:** Claude Sonnet 4.5
+**Fork Audit Implementation:** 2026-01-30
 
 ---
 

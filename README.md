@@ -1,5 +1,11 @@
 # 🦞 Moltbot — Personal AI Assistant
 
+> **⚠️ FORK NOTICE**
+> This is a **modified fork** of the original [Moltbot project](https://github.com/moltbot/moltbot) by Peter Steinberger.
+> See [FORK.md](FORK.md) for detailed modifications and security enhancements.
+> **Original project:** https://github.com/moltbot/moltbot
+> **License:** MIT (see [LICENSE](LICENSE))
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/moltbot/moltbot/main/docs/whatsapp-clawd.jpg" alt="Clawdbot" width="400">
 </p>
