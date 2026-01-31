@@ -6,9 +6,19 @@ Docs: https://docs.molt.bot
 
 Status: security enhancement.
 
-### Security (P1 High Priority)
+### Security (P1 Critical)
 
-**Gateway Authentication Enforcement:**
+**Sandbox Enablement (#3):**
+- Changed default sandbox mode from "off" to "all"
+- All agent sessions now run in isolated Docker containers by default
+- Network isolation already implemented (network: "none")
+- Added security warning when sandbox is explicitly disabled
+- Prevents arbitrary code execution without isolation
+
+Files modified:
+- `src/agents/sandbox/config.ts` - Default mode change + warning
+
+**Gateway Authentication Enforcement (#1):**
 - Added token strength validation (minimum 32 characters, complexity checks)
 - Enhanced error messages with security guidance for non-loopback bindings
 - Added security warnings when gateway is exposed on network

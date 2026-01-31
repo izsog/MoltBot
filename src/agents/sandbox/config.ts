@@ -138,8 +138,22 @@ export function resolveSandboxConfigForAgent(cfg?: MoltbotConfig, agentId?: stri
 
   const toolPolicy = resolveSandboxToolPolicyForAgent(cfg, agentId);
 
+  // P1 Security Enhancement: Default to "all" for sandboxing all sessions
+  const resolvedMode = agentSandbox?.mode ?? agent?.mode ?? "all";
+
+  // Warn if sandbox is explicitly disabled
+  if (resolvedMode === "off" && (agentSandbox?.mode === "off" || agent?.mode === "off")) {
+    console.warn(
+      [
+        `[moltbot] SECURITY WARNING: Sandbox disabled for agent "${agentId}"`,
+        `This allows unrestricted code execution without isolation.`,
+        `Recommendation: Enable sandbox with agents.defaults.sandbox.mode="all"`,
+      ].join("\n"),
+    );
+  }
+
   return {
-    mode: agentSandbox?.mode ?? agent?.mode ?? "off",
+    mode: resolvedMode,
     scope,
     workspaceAccess: agentSandbox?.workspaceAccess ?? agent?.workspaceAccess ?? "none",
     workspaceRoot:

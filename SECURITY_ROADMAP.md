@@ -10,7 +10,7 @@
 |---|--------------|----------|--------|----------|
 | 1 | Gateway exposed on 0.0.0.0:18789 | 🔴 CRITICAL | ✅ Enhanced | ~~P1~~ DONE |
 | 2 | DM policy allows all users | 🔴 CRITICAL | ❌ Not Fixed | P1 |
-| 3 | Sandbox disabled by default | 🔴 CRITICAL | ❌ Not Fixed | P1 |
+| 3 | Sandbox disabled by default | 🔴 CRITICAL | ✅ Fixed | ~~P1~~ DONE |
 | 4 | Credentials in plaintext oauth.json | 🟡 HIGH | ✅ Fixed (P0) | - |
 | 5 | Prompt injection via web content | 🟡 HIGH | ⚠️ Partially Fixed | P2 |
 | 6 | Dangerous commands unlocked | 🟡 HIGH | ❌ Not Fixed | P1 |
