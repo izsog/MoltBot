@@ -8,6 +8,16 @@ Status: security enhancement.
 
 ### Security (P1 Critical)
 
+**DM Policy Audit (#2):**
+- Verified all channels default to dmPolicy="pairing" (secure)
+- Confirmed validation rejects dmPolicy="open" without allowFrom=["*"]
+- No code changes required - already secure by default
+- Marked vulnerability #2 as ALREADY FIXED
+
+Audited files:
+- `src/config/zod-schema.providers-core.ts` - All channels default to "pairing"
+- `src/config/zod-schema.providers-whatsapp.ts` - WhatsApp defaults verified
+
 **Sandbox Enablement (#3):**
 - Changed default sandbox mode from "off" to "all"
 - All agent sessions now run in isolated Docker containers by default

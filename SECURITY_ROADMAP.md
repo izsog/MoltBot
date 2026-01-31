@@ -9,7 +9,7 @@
 | # | Vulnerability | Severity | Status | Priority |
 |---|--------------|----------|--------|----------|
 | 1 | Gateway exposed on 0.0.0.0:18789 | 🔴 CRITICAL | ✅ Enhanced | ~~P1~~ DONE |
-| 2 | DM policy allows all users | 🔴 CRITICAL | ❌ Not Fixed | P1 |
+| 2 | DM policy allows all users | 🔴 CRITICAL | ✅ Already Fixed | ~~P1~~ DONE |
 | 3 | Sandbox disabled by default | 🔴 CRITICAL | ✅ Fixed | ~~P1~~ DONE |
 | 4 | Credentials in plaintext oauth.json | 🟡 HIGH | ✅ Fixed (P0) | - |
 | 5 | Prompt injection via web content | 🟡 HIGH | ⚠️ Partially Fixed | P2 |
@@ -86,34 +86,37 @@ if (!isLoopbackHost(bindHost) && !hasSharedSecret) {
 
 ---
 
-### 2. DM Policy Allowlist (#2)
-**Status:** ❌ Not Fixed
+### ~~2. DM Policy Allowlist (#2)~~ ✅ ALREADY FIXED
+**Status:** ✅ Already Implemented (2026-01-31 audit discovery)
 
-**Current Issue:**
-- Default DM policy may allow all users
-- No explicit allowlist enforcement
+**Discovery:**
+Upon code audit, found that all channels **already default to secure DM policy**:
+- ✅ Telegram: `dmPolicy.default("pairing")` (zod-schema.providers-core.ts:96)
+- ✅ Signal: `dmPolicy.default("pairing")` (zod-schema.providers-core.ts:515)
+- ✅ iMessage: `dmPolicy.default("pairing")` (zod-schema.providers-core.ts:574)
+- ✅ BlueBubbles: `dmPolicy.default("pairing")` (zod-schema.providers-core.ts:665)
+- ✅ Discord: `dmPolicy.default("pairing")` (zod-schema.providers-core.ts:742)
+- ✅ WhatsApp: `dmPolicy.default("pairing")` (zod-schema.providers-whatsapp.ts:26, 82)
 
-**Proposed Fix:**
-```yaml
-# config.yaml - Enforce allowlist
-routing:
-  dm_policy: allowlist
-  dm_allowlist:
-    - "+1234567890"  # Explicit phone numbers only
+**Existing Security Measures:**
+- ✅ Zod schema enforces `dmPolicy="pairing"` by default
+- ✅ Validation rejects `dmPolicy="open"` without `allowFrom=["*"]`
+- ✅ Security warnings in extensions (e.g., Zalo, ZaloUser)
+- ✅ Comprehensive test coverage (config.legacy-config-detection tests)
+
+**Security Behavior:**
+```typescript
+// Default: Users must be explicitly paired (secure)
+dmPolicy: "pairing"
+
+// If user sets dmPolicy="open", validation REQUIRES allowFrom=["*"]
+// Otherwise config validation FAILS
 ```
 
-**Implementation Tasks:**
-- [ ] Set default `dm_policy: allowlist`
-- [ ] Require explicit user configuration
-- [ ] Add validation for empty allowlists
-- [ ] Warn on `dm_policy: open` with prompt
+**Conclusion:**
+This vulnerability was **incorrectly classified**. The codebase already implements secure-by-default DM policy with proper validation. No code changes required.
 
-**Files to Modify:**
-- `src/config/config.ts`
-- `src/config/validation.ts`
-- `src/routing/dm-policy.ts`
-
-**Estimated Effort:** 3-4 hours
+**Estimated Effort:** 0 hours (no changes needed)
 
 ---
 
@@ -451,13 +454,18 @@ Each implementation phase should update:
 
 **Security Posture Improvement:**
 - ✅ P0 completed: 2/10 vulnerabilities addressed (20%)
-- 🎯 P1 target: 7/10 vulnerabilities addressed (70%)
+- ✅ P1 completed: 5/10 vulnerabilities addressed (50%) ← **CRITICAL: 0/3 remaining!**
 - 🎯 P2 target: 10/10 vulnerabilities addressed (100%)
 
 **Audit Score:**
-- Current: CRITICAL: 3, HIGH: 4, MEDIUM: 3
-- Target P1: CRITICAL: 0, HIGH: 1, MEDIUM: 3
+- Original: CRITICAL: 3, HIGH: 4, MEDIUM: 3
+- **Current: CRITICAL: 0, HIGH: 2, MEDIUM: 3** ← All CRITICAL fixed!
 - Target P2: CRITICAL: 0, HIGH: 0, MEDIUM: 0
+
+**CRITICAL Vulnerabilities Status:**
+- ✅ #1 Gateway exposed on 0.0.0.0:18789 - Enhanced with auth validation
+- ✅ #2 DM policy allows all users - Already secure (default="pairing")
+- ✅ #3 Sandbox disabled by default - Fixed (default="all")
 
 ---
 
