@@ -43,9 +43,38 @@ export async function safeStat(targetPath: string): Promise<{
 }> {
   try {
     const lst = await fs.lstat(targetPath);
+    const isSymlink = lst.isSymbolicLink();
+
+    // Security fix: Follow symlinks to check actual target permissions
+    // Symlinkek permission bitjei mindig 777, de a cél fájl permissions-ai számítanak
+    if (isSymlink) {
+      try {
+        const target = await fs.stat(targetPath); // Follow symlink
+        return {
+          ok: true,
+          isSymlink: true,
+          isDir: target.isDirectory(),
+          mode: typeof target.mode === "number" ? target.mode : null,
+          uid: typeof target.uid === "number" ? target.uid : null,
+          gid: typeof target.gid === "number" ? target.gid : null,
+        };
+      } catch (err) {
+        // Ha a symlink cél nem elérhető, fallback az lstat-ra
+        return {
+          ok: true,
+          isSymlink: true,
+          isDir: lst.isDirectory(),
+          mode: typeof lst.mode === "number" ? lst.mode : null,
+          uid: typeof lst.uid === "number" ? lst.uid : null,
+          gid: typeof lst.gid === "number" ? lst.gid : null,
+          error: `Symlink target unreachable: ${String(err)}`,
+        };
+      }
+    }
+
     return {
       ok: true,
-      isSymlink: lst.isSymbolicLink(),
+      isSymlink: false,
       isDir: lst.isDirectory(),
       mode: typeof lst.mode === "number" ? lst.mode : null,
       uid: typeof lst.uid === "number" ? lst.uid : null,
