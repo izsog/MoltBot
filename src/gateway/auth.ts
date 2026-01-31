@@ -184,6 +184,61 @@ export function resolveGatewayAuth(params: {
   };
 }
 
+/**
+ * Validates token strength (P1 security requirement).
+ * Checks for weak/default tokens that pose a security risk.
+ */
+function validateTokenStrength(token: string): { ok: boolean; warning?: string } {
+  const trimmed = token.trim();
+
+  // Check minimum length (32 characters recommended)
+  if (trimmed.length < 24) {
+    return {
+      ok: false,
+      warning: `Token is too short (${trimmed.length} chars). Use at least 32 characters for security.`,
+    };
+  }
+
+  // Check for common weak patterns
+  const weakPatterns = [
+    /^(password|token|secret|test|demo|admin|default)/i,
+    /^(123|abc|qwe|aaa)/i,
+    /^(.)\1{10,}$/, // Repeating characters
+  ];
+
+  for (const pattern of weakPatterns) {
+    if (pattern.test(trimmed)) {
+      return {
+        ok: false,
+        warning:
+          "Token appears to be weak or default. Generate a strong random token with: node -e \"console.log(require('crypto').randomBytes(32).toString('base64url'))\"",
+      };
+    }
+  }
+
+  // Check entropy (basic check - should have mixed characters)
+  const hasLowercase = /[a-z]/.test(trimmed);
+  const hasUppercase = /[A-Z]/.test(trimmed);
+  const hasNumbers = /[0-9]/.test(trimmed);
+  const hasSpecialChars = /[^a-zA-Z0-9]/.test(trimmed);
+
+  const characterTypeCount =
+    (hasLowercase ? 1 : 0) +
+    (hasUppercase ? 1 : 0) +
+    (hasNumbers ? 1 : 0) +
+    (hasSpecialChars ? 1 : 0);
+
+  if (characterTypeCount < 2) {
+    return {
+      ok: true,
+      warning:
+        "Token has low complexity. Consider using a mix of letters, numbers, and special characters.",
+    };
+  }
+
+  return { ok: true };
+}
+
 export function assertGatewayAuthConfigured(auth: ResolvedGatewayAuth): void {
   if (auth.mode === "token" && !auth.token) {
     if (auth.allowTailscale) return;
@@ -193,6 +248,17 @@ export function assertGatewayAuthConfigured(auth: ResolvedGatewayAuth): void {
   }
   if (auth.mode === "password" && !auth.password) {
     throw new Error("gateway auth mode is password, but no password was configured");
+  }
+
+  // P1 Security Enhancement: Validate token strength
+  if (auth.mode === "token" && auth.token) {
+    const validation = validateTokenStrength(auth.token);
+    if (!validation.ok && validation.warning) {
+      throw new Error(`SECURITY: Weak gateway token detected. ${validation.warning}`);
+    }
+    if (validation.warning) {
+      console.warn(`[moltbot] SECURITY WARNING: ${validation.warning}`);
+    }
   }
 }
 

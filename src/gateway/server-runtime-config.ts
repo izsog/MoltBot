@@ -88,9 +88,32 @@ export async function resolveGatewayRuntimeConfig(params: {
   if (tailscaleMode !== "off" && !isLoopbackHost(bindHost)) {
     throw new Error("tailscale serve/funnel requires gateway bind=loopback (127.0.0.1)");
   }
+  // P1 Security Enhancement: Enforce authentication for non-loopback bindings
   if (!isLoopbackHost(bindHost) && !hasSharedSecret) {
     throw new Error(
-      `refusing to bind gateway to ${bindHost}:${params.port} without auth (set gateway.auth.token/password, or set CLAWDBOT_GATEWAY_TOKEN/CLAWDBOT_GATEWAY_PASSWORD)`,
+      [
+        `SECURITY: Refusing to bind gateway to ${bindHost}:${params.port} without authentication.`,
+        ``,
+        `This would expose your gateway to network/internet access without protection.`,
+        ``,
+        `To fix this, set a strong authentication token:`,
+        `  1. Generate a token: node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"`,
+        `  2. Set it: export CLAWDBOT_GATEWAY_TOKEN="your-generated-token"`,
+        `  3. Or add to config.yaml: gateway.auth.token`,
+        ``,
+        `For local-only access, use: gateway.bind=loopback (or --bind loopback)`,
+      ].join("\n"),
+    );
+  }
+
+  // P1 Security Enhancement: Warn on non-loopback binding even with auth
+  if (!isLoopbackHost(bindHost) && hasSharedSecret) {
+    console.warn(
+      [
+        `[moltbot] SECURITY WARNING: Gateway exposed on ${bindHost}:${params.port}`,
+        `Ensure your firewall is properly configured and you're using a strong token.`,
+        `Recommendation: Use Tailscale (tailscale.mode=serve) for remote access instead.`,
+      ].join("\n"),
     );
   }
 

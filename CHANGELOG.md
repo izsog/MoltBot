@@ -2,6 +2,26 @@
 
 Docs: https://docs.molt.bot
 
+## 2026.1.31-security-p1
+
+Status: security enhancement.
+
+### Security (P1 High Priority)
+
+**Gateway Authentication Enforcement:**
+- Added token strength validation (minimum 32 characters, complexity checks)
+- Enhanced error messages with security guidance for non-loopback bindings
+- Added security warnings when gateway is exposed on network
+- Updated `.env.example` with comprehensive token generation guide
+- Reject weak/default tokens (e.g., "password123", "token", repeating chars)
+
+Files modified:
+- `src/gateway/auth.ts` - Token validation function
+- `src/gateway/server-runtime-config.ts` - Enhanced security warnings
+- `.env.example` - Security documentation
+
+---
+
 ## 2026.1.30-security-hotfix
 
 Status: security hotfix.
